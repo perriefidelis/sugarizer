@@ -7,6 +7,8 @@
     background-image: url(../activity/activity-icon.svg);
 }
 
+
+
 #main-toolbar #network-button {
     background-image: url(../lib/sugar-web/graphics/icons/actions/zoom-home.svg);
 }
@@ -14,6 +16,7 @@
 #main-toolbar #game-templates-button {
     background-image: url(../icons/memorize-collection.svg);
 }
+
 
 #main-toolbar #game-size-button {
     background-image: url(../icons/4x4.svg);

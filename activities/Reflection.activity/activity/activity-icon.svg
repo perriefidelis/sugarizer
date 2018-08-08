@@ -1,6 +1,6 @@
 <?xml version="1.0" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd' [
-	<!ENTITY stroke_color "#000">
-	<!ENTITY fill_color "#eee">
+	<!ENTITY stroke_color "#ff7ce7">
+	<!ENTITY fill_color "#800080">
 ]><svg height="55px" viewBox="0 0 55 55" width="55px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" stroke="&stroke_color;" fill="&fill_color;">
   <path
      d="m 18.392857,27.49995 a 2.4107143,2.4107143 0 1 1 -6.1e-5,-0.0172"

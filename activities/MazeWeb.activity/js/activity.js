@@ -7,8 +7,8 @@ define(["sugar-web/activity/activity","tween","rAF","activity/maze","activity/di
         var canvasWidth;
         var canvasHeight;
 
-        var wallColor = "#101010";
-        var corridorColor = "#ffffff";
+        var wallColor = "#f7ff14";
+        var corridorColor = "#14ff85";
         var startColor = "hsl(0, 0%, 80%)";
         var startPlayerColor = "hsl(0, 90%, 50%)";
         var goalColor;

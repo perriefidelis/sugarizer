@@ -2,7 +2,7 @@
  * Created by ohayon_m on 17/08/15.
  */
 
-define(["activity/sample-ressources", "activity/palettes/template-palette", "activity/palettes/size-palette", "activity/lz-string", "sugar-web/graphics/journalchooser", 'sugar-web/datastore'], function (SampleRessources, templatePalette, sizePalette, lzString, chooser, datastore) {
+define(["activity/sample-ressources", "activity/palettes/template-palette", "activity/palettes/size-palette", "activity/lz-string"], function (SampleRessources, templatePalette, sizePalette, lzString) {
 
         var FOUND_COLOR = "#84f060";
         var MODE_CLASSIC = "classic";
@@ -14,21 +14,21 @@ define(["activity/sample-ressources", "activity/palettes/template-palette", "act
         var TEMPLATE_SUMS = {
             name: "Addition", icon: "addition.svg", cards: [
                 [{text: "3+4"}, {text: "7"}],
-                [{text: "5+5"}, {text: "10"}],
-                [{text: "5+6"}, {text: "11"}],
+                [{text: "0+7"}, {text: "7"}],
+                [{text: "9+1"}, {text: "10"}],
                 [{text: "4+4"}, {text: "8"}],
                 [{text: "4+5"}, {text: "9"}],
                 [{text: "3+3"}, {text: "6"}],
                 [{text: "2+2"}, {text: "4"}],
                 [{text: "1+1"}, {text: "2"}],
                 [{text: "1+2"}, {text: "3"}],
-                [{text: "9+9"}, {text: "18"}],
-                [{text: "10+9"}, {text: "19"}],
-                [{text: "8+8"}, {text: "16"}],
-                [{text: "8+9"}, {text: "17"}],
-                [{text: "7+7"}, {text: "14"}],
-                [{text: "7+8"}, {text: "15"}],
-                [{text: "6+6"}, {text: "12"}]
+                [{text: "0+0"}, {text: "0"}],
+                [{text: "0+1"}, {text: "1"}],
+                [{text: "0+2"}, {text: "2"}],
+                [{text: "0+3"}, {text: "3"}],
+                [{text: "0+4"}, {text: "4"}],
+                [{text: "0+5"}, {text: "5"}],
+                [{text: "0+6"}, {text: "6"}]
             ],
             mode: MODE_SPLITTED
         };
@@ -367,6 +367,7 @@ define(["activity/sample-ressources", "activity/palettes/template-palette", "act
             fullCardDiv.cardPosition = i;
             fullCardDiv.webkitPerspective = "500px";
             fullCardDiv.perspective = "500px";
+            //fullCardDiv.style.backgroundColor="WHITE";
             fullCardDiv.style.border = "3px solid #fff";
             fullCardDiv.style.borderRadius = "6px";
             fullCardDiv.style.margin = "5px";
@@ -402,13 +403,13 @@ define(["activity/sample-ressources", "activity/palettes/template-palette", "act
         function createFrontDiv(i, middle, minSize) {
             var front = document.createElement("div");
             if (MemorizeApp.game.mode == MODE_CLASSIC) {
-                front.style.background = "#777";
+                front.style.background = "WHITE";
             }
             if (MemorizeApp.game.mode == MODE_SPLITTED) {
                 if (i < middle) {
-                    front.style.background = "#777 url(icons/number1.svg)";
+                    front.style.background = "WHITE url(icons/number1.svg)";
                 } else {
-                    front.style.background = "#777 url(icons/number2.svg)";
+                    front.style.background = "WHITE url(icons/number2.svg)";
                 }
             }
             front.zIndex = 2;
@@ -473,12 +474,7 @@ define(["activity/sample-ressources", "activity/palettes/template-palette", "act
             t.style.webkitTransform = "rotateY(180deg)";
             t.style.transform = "rotateY(180deg)";
 
-            if(MemorizeApp.game.selectedCards.length == 1 && MemorizeApp.game.selectedCards[0] == t){
-                return;
-            }
-            else{
-                MemorizeApp.game.selectedCards.push(t);
-            }
+            MemorizeApp.game.selectedCards.push(t);
 
             if (t.card.sound) {
                 if (t.card.sound.indexOf(INLINE_RES) == 0) {
@@ -1004,28 +1000,15 @@ define(["activity/sample-ressources", "activity/palettes/template-palette", "act
             d.style.fontSize = parseInt(minSize / 3.5) - 10 + "px";
             d.style.lineHeight = parseInt(minSize / 3.5) - 10 + "px";
             d.className = "textCard";
-            d.style.backgroundRepeat = "no-repeat";
-            d.style.backgroundSize = "100%";
-            d.style.backgroundPosition = "center";
             if (card && card.text) {
                 d.innerHTML = card.text;
-            } else if (card && card.image) {
-                d.style.backgroundImage = "url('" + card.image + "')";
             }
-
-            var importPicture = document.createElement("img");
-            importPicture.style.marginLeft = "5px";
-            importPicture.style.marginTop = "5px";
-            importPicture.style.textAlign = "center";
-            importPicture.setAttribute("src", "icons/import_picture.svg");
-            importPicture.style.width = "30px";
-            importPicture.className = "insertImage";
 
             var input = document.createElement("input");
             input.setAttribute("type", "text");
             input.style.marginRight = "auto";
             input.style.marginLeft = "auto";
-            input.style.width = parseInt(minSize / 3.5) - 50 + "px";
+            input.style.width = parseInt(minSize / 3.5) - 10 + "px";
             input.style.marginTop = "5px";
             input.card = card;
             if (card && card.text) {
@@ -1042,8 +1025,6 @@ define(["activity/sample-ressources", "activity/palettes/template-palette", "act
 
             e.appendChild(d);
             e.appendChild(input);
-            e.appendChild(importPicture);
-
             return e;
         }
 
@@ -1257,119 +1238,6 @@ define(["activity/sample-ressources", "activity/palettes/template-palette", "act
             return d;
         }
 
-        function insertimagebuttonsFun(){
-            document.getElementsByClassName("insertImage")[0].onclick = function(){
-                var cards = [];
-                chooser.show(function (entry) {
-                    // No selection
-                    if (!entry) {
-                        return;
-                    }
-                    // Get object content
-                    var dataentry = new datastore.DatastoreObject(entry.objectId);
-                    dataentry.loadAsText(function (err, metadata, text) {
-                        //We load the drawing inside an image element
-                        var element = document.createElement('img');
-                        if (entry.metadata.activity ==  'org.olpcfrance.PaintActivity') {
-                            element.src = LZString.decompressFromUTF16(JSON.parse(text).src);
-                        } else {
-                            element.src = text;
-                        }
-                        element.onload = function () {
-                            document.getElementsByClassName("textCard")[0].style.backgroundImage = 'url(' + element.src + ')';
-                            if (MemorizeApp.editor.pairMode == MODE_EQUAL) {
-                                MemorizeApp.editor.card1.image = element.src;
-                                MemorizeApp.editor.card1.text = "";
-                                MemorizeApp.editor.card2.image = element.src;
-                                MemorizeApp.editor.card2.text = "";
-                            }else{
-                                MemorizeApp.editor.card1.image = element.src;
-                                MemorizeApp.editor.card1.text = "";
-                            }
-                            var cards = [];
-                            if (MemorizeApp.editor.pairMode == MODE_EQUAL) {
-                                cards[0] = MemorizeApp.editor.card1;
-                                cards[1] = MemorizeApp.editor.card1;
-                            }
-                            if (MemorizeApp.editor.pairMode == MODE_NON_EQUAL) {
-                                cards[0] = MemorizeApp.editor.card1;
-                                cards[1] = MemorizeApp.editor.card2;
-                            }
-
-                            if (!cards[0].text && !cards[0].image && !cards[0].sound) {
-                                return;
-                            }
-
-                            if (!cards[1].text && !cards[1].image && !cards[1].sound) {
-                                return;
-                            }
-
-                            cards = JSON.parse(JSON.stringify(cards));
-
-                            if (MemorizeApp.editor.selectedPair > -1) {
-                                MemorizeApp.game.template.cards[MemorizeApp.editor.selectedPair] = cards
-                            }
-                            saveGame();
-                            displayEditor();
-                        };
-                    });
-                }, { mimetype: 'image/png' }, { mimetype: 'image/jpeg' }, { activity: 'org.olpcfrance.PaintActivity'});
-            }
-            if(document.getElementsByClassName("insertImage")[1]){
-                document.getElementsByClassName("insertImage")[1].onclick = function(){
-                    var cards = [];
-                    chooser.show(function (entry) {
-                        // No selection
-                        if (!entry) {
-                            return;
-                        }
-                        // Get object content
-                        var dataentry = new datastore.DatastoreObject(entry.objectId);
-                        dataentry.loadAsText(function (err, metadata, text) {
-                            //We load the drawing inside an image element
-                            var element = document.createElement('img');
-                            element.src = text;
-                            element.onload = function () {
-                                document.getElementsByClassName("textCard")[1].style.backgroundImage = 'url(' + element.src + ')';
-                                if (MemorizeApp.editor.pairMode == MODE_EQUAL) {
-                                    MemorizeApp.editor.card1.image = element.src;
-                                    MemorizeApp.editor.card1.text = "";
-                                    MemorizeApp.editor.card2.image = element.src;
-                                    MemorizeApp.editor.card2.text = "";
-                                }else{
-                                    MemorizeApp.editor.card2.image = element.src;
-                                    MemorizeApp.editor.card2.text = "";
-                                }
-                                var cards = [];
-                                if (MemorizeApp.editor.pairMode == MODE_EQUAL) {
-                                    cards[0] = MemorizeApp.editor.card1;
-                                    cards[1] = MemorizeApp.editor.card1;
-                                }
-                                if (MemorizeApp.editor.pairMode == MODE_NON_EQUAL) {
-                                    cards[0] = MemorizeApp.editor.card1;
-                                    cards[1] = MemorizeApp.editor.card2;
-                                }
-
-                                if (!cards[0].text && !cards[0].image && !cards[0].sound) {
-                                    return;
-                                }
-
-                                if (!cards[1].text && !cards[1].image && !cards[1].sound) {
-                                    return;
-                                }
-                                cards = JSON.parse(JSON.stringify(cards));
-                                if (MemorizeApp.editor.selectedPair > -1) {
-                                    MemorizeApp.game.template.cards[MemorizeApp.editor.selectedPair] = cards
-                                }
-                                saveGame();
-                                displayEditor();
-                            };
-                        });
-                    }, { mimetype: 'image/png' }, { mimetype: 'image/jpeg' });
-                }
-            }
-        }
-
         function generateCardsList() {
             var div = document.createElement("div");
             var minSize = document.body.clientWidth;
@@ -1430,7 +1298,7 @@ define(["activity/sample-ressources", "activity/palettes/template-palette", "act
                 MemorizeApp.ui.gameEditor.appendChild(generateEditorDiv(MemorizeApp.editor.card1));
                 MemorizeApp.ui.gameEditor.appendChild(generateEditorDiv(MemorizeApp.editor.card2));
             }
-            insertimagebuttonsFun();
+
             MemorizeApp.ui.gameEditor.appendChild(generateAddEditRemoveButton());
             MemorizeApp.ui.gameEditor.appendChild(generateClearBoth());
             MemorizeApp.ui.gameEditor.appendChild(generateCardsList());

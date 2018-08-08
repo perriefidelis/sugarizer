@@ -47,26 +47,13 @@ define(["sugar-web/bus", "sugar-web/env"], function(bus, env) {
     datastore.create = function(metadata, callback, text) {
         var callback_c = datastore.callbackChecker(callback);
         var objectId = datastore.createUUID();
-		if (text !== undefined) {
-			if (!html5storage.setValue(datastoreTextPrefix + objectId, text)) {
-				callback_c(-1, null);
-				return;
-			}
-			metadata["textsize"] = text.length;
-		}
-		var sugar_settings = html5storage.getValue("sugar_settings");
-		if (sugar_settings) {
-			metadata["buddy_name"] = sugar_settings.name;
-			metadata["buddy_color"] = sugar_settings.colorvalue;
-		}
-        if (html5storage.setValue(datastorePrefix + objectId, {
+		if (text !== undefined)
+			html5storage.setValue(datastoreTextPrefix + objectId, text);
+        html5storage.setValue(datastorePrefix + objectId, {
             metadata: metadata,
             text: (text === undefined) ? null : { link: datastoreTextPrefix + objectId }
-        })) {
-			callback_c(null, objectId);
-		} else {
-			callback_c(-1, null);
-		}
+        });
+        callback_c(null, objectId);
     }
 
     // Find entries matching an activity type
@@ -132,20 +119,17 @@ define(["sugar-web/bus", "sugar-web/env"], function(bus, env) {
     // Load text
     DatastoreObject.prototype.loadAsText = function(callback) {
         var callback_c = datastore.callbackChecker(callback);
-		var that = this;
-		html5storage.waitEndOfLoad(function() {
-	        var result = html5storage.getValue(datastorePrefix + that.objectId);
-	        if (result != null) {
-	            that.setMetadata(result.metadata);
-				var text = null;
-				if (result.text) {
-					text = html5storage.getValue(datastoreTextPrefix + that.objectId);
-					that.setDataAsText(text);
-				}
-	            that.toload = false;
-	            callback_c(null, result.metadata, text);
-	        }
-		});
+        var result = html5storage.getValue(datastorePrefix + this.objectId);
+        if (result != null) {
+            this.setMetadata(result.metadata);
+			var text = null;
+			if (result.text) {
+				text = html5storage.getValue(datastoreTextPrefix + this.objectId);
+				this.setDataAsText(text);
+			}
+            this.toload = false;
+            callback_c(null, result.metadata, text);
+        }
     };
 
     // Set metadata
@@ -161,7 +145,7 @@ define(["sugar-web/bus", "sugar-web/env"], function(bus, env) {
     };
 
     // Save data
-    DatastoreObject.prototype.save = function(callback, dontupdatemetadata) {
+    DatastoreObject.prototype.save = function(callback) {
         if (this.objectId === undefined) {
             var that = this;
             this.newMetadata["timestamp"] = this.newMetadata["creation_time"] = new Date().getTime();
@@ -178,31 +162,20 @@ define(["sugar-web/bus", "sugar-web/env"], function(bus, env) {
             }
         }
         var callback_c = datastore.callbackChecker(callback);
-        if (!dontupdatemetadata) {
-			this.newMetadata["timestamp"] = new Date().getTime();
-		}
+        this.newMetadata["timestamp"] = new Date().getTime();
 		var sugar_settings = html5storage.getValue("sugar_settings");
-		if (sugar_settings && !dontupdatemetadata) {
+		if (sugar_settings) {
 			this.newMetadata["buddy_name"] = sugar_settings.name;
 			this.newMetadata["buddy_color"] = sugar_settings.colorvalue;
 		}
 		if (this.newDataAsText != null) {
-			if (!html5storage.setValue(datastoreTextPrefix + this.objectId, this.newDataAsText)) {
-				callback_c(-1, null);
-				return;
-			};
-			if (!dontupdatemetadata) {
-				this.newMetadata["textsize"] = this.newDataAsText.length;
-			};
+			html5storage.setValue(datastoreTextPrefix + this.objectId, this.newDataAsText);
 		}
-        if (html5storage.setValue(datastorePrefix + this.objectId, {
+        html5storage.setValue(datastorePrefix + this.objectId, {
             metadata: this.newMetadata,
             text: (this.newDataAsText === undefined) ? null : { link: datastoreTextPrefix + this.objectId }
-        })) {
-			callback_c(null, this.newMetadata, this.newDataAsText);
-		} else {
-			callback_c(-1, null);
-		}
+        });
+        callback_c(null, this.newMetadata, this.newDataAsText);
     };
 
     datastore.DatastoreObject = DatastoreObject;
@@ -236,19 +209,6 @@ define(["sugar-web/bus", "sugar-web/env"], function(bus, env) {
 	};
 	html5storage.load();
 
-	// Wait for end of loading
-	html5storage.waitEndOfLoad = function(then) {
-		if (typeof chrome != 'undefined' && chrome.app && chrome.app.runtime) {
-			if (storageloadedcalls.length != 0) {  // HACK: On Chrome OS, wait for the end of load of localStorage in memory
-				storageloadedcalls.push(then);
-				return;
-			};
-		}
-		if (then) {
-			then();
-		}
-	}
-
     // Test if HTML5 storage is available
     html5storage.test = function() {
 		if (typeof chrome != 'undefined' && chrome.app && chrome.app.runtime)
@@ -265,19 +225,11 @@ define(["sugar-web/bus", "sugar-web/env"], function(bus, env) {
 					this.values[key] = JSON.stringify(value);
 					var item = {};
 					item[key] = this.values[key];
-					chrome.storage.local.set(item, function() {
-						if (chrome.runtime.lastError) {
-							console.log("ERROR: Unable to update local storage");
-						}
-					});
+					chrome.storage.local.set(item);
 				} else {
 					window.localStorage.setItem(key, JSON.stringify(value));
 				}
-				return true;
-            } catch (err) {
-				console.log("ERROR: Unable to update local storage");
-				return false;
-			}
+            } catch (err) {}
         }
     };
 
@@ -303,7 +255,7 @@ define(["sugar-web/bus", "sugar-web/env"], function(bus, env) {
             try {
 				if (typeof chrome != 'undefined' && chrome.app && chrome.app.runtime) {
 					this.values[key] = null;
-					chrome.storage.local.remove(key);
+					chrome.store.remove(key);
 				} else {
 					window.localStorage.removeItem(key);
 				}

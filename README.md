@@ -1,289 +1,285 @@
-![](images/sugar_animation.gif)
+# Google Summer of Code 2018 Project: Primero1° Documentation
 
-# What is Sugarizer ?
+## Table of Contents
 
-The [Sugar Learning Platform](https://sugarlabs.org/) is a leading learning platform that began in the famous One Laptop Per Child project.
-It is used every day by nearly 3 million children around the world.
+1. [Basic Information](https://github.com/iqraceme/Primero1/#basic-information)
 
-Sugarizer is a web implementation of the platform and runs on every device - from tiny Raspberry Pi computers to small Android and iOS phones to tablets and to laptops and desktops.
+2. [About the Website/Project](https://github.com/iqraceme/Primero1/#about-the-project)
 
-Like Sugar, Sugarizer includes a bunch of pedagogic activities thought for children.
+3. [Steps on how to use the Primero1 app](https://github.com/iqraceme/Primero1/#steps-on-how-to-use-the-primero1-app)
 
-Sugarizer is available as:
+4. [Description of Files and Folders](https://github.com/iqraceme/Primero1/#description-of-files-and-folders)
 
-* Application: an installable app for every operating system
-* Web Application: a web application that runs in modern web browsers
+5. [Design Layout of Website/Project](https://github.com/iqraceme/Primero1/#design-layout-of-website/project)
 
-Enjoy the experience and help us reach every child on every device in every country.
+6. [Addendum for iOS App](https://github.com/iqraceme/Primero1/#addendum-for-ios-app)
 
-# Sugarizer Application
+7. [Credits](https://github.com/iqraceme/Primero1/#credits)
 
-Sugarizer Application is a cross-platform application for installing on any GNU+Linux, Windows, Mac OS X, Android, iOS, or Chrome OS device.
+# Basic Information
 
-To run **Sugarizer Application on Android**, download it on [Google Play](https://play.google.com/store/apps/details?id=org.olpc_france.sugarizer), [Amazon Store](http://www.amazon.com/gp/product/B00NKK7PZA) or [F-Droid](https://f-droid.org/repository/browse/?fdid=org.olpc_france.sugarizer).
+* Project Name - **Primero1° (Sugarizer Primero1°)**.
 
-Sugarizer on Android is also available as a launcher to replace the current launcher of your device so you could launch native Android applications from Sugarizer. You could download this Sugarizer version on [Google Play](https://play.google.com/store/apps/details?id=org.olpc_france.sugarizeros).
+* Organisation - **Sugar Labs**.
 
-You could also build yourself the Sugarizer Application APK using instruction below.
+* Developer - **Iqra Muhammad**.
 
-![](images/googleplay.png)
-![](images/amazonstore.png)
-![](images/fdroid.png)
+* Project Mentors - **Samson Goddy, Caryl Begenho, Perrie Fidelis**.
 
+* As part of - **Google Summer Of Code(GSOC) 2018**
 
+# About the Project
 
-To run **Sugarizer Application on iOS**, download it on [Apple Store](https://itunes.apple.com/us/app/sugarizer/id978495303) or build yourself the Sugarizer Application IPA using instructions below.
+### Introduction
 
-![](images/applestore.png)
+This repository contains the code for the Primero1° version of Sugarizer (https://github.com/iqraceme/Primero1). This repository code base was used for the development of the GSoC 2018 project, Primero1°,  under the organization Sugar Labs. The changes made during the GSoC period can be viewed at [https://github.com/iqraceme/Primero1]. The repository for the original sugarizer website is located at [https://github.com/sugarlabs/sugarizer]. The work during GSoC was done in the repository [https://github.com/iqraceme/Primero1]. A live preview of the website is hosted and can be viewed at [http://iqragsoc.com/iqragsoc.com/primero/].
 
-To run **Sugarizer Application on Windows 10**, download it on [Windows Store](https://www.microsoft.com/store/apps/9nblggh4r782). You could also build yourself the Sugarizer Windows Application using instructions below.
+The Primero1° Android beta testing version is available at:
 
-![](images/windowstore.png)
+https://play.google.com/apps/testing/com.sugars.primero1
 
-To run **Sugarizer Application as Chrome Web App**, download it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/sugarizer/omfgclgehghdlloggibhgicnlldjiboo) or use the [Chrome Apps & Extensions Developer Tool](https://chrome.google.com/webstore/detail/chrome-apps-extensions-de/ohmmkhmmmpcnpikjeljgnaoabkaalbgc) and use the Sugarizer directory as the target for the unpacked application.
+A link for the Primero1° Amazon Kindle testing version can be emailed upon request.
 
-![](images/chromewebstore.png)
+**_Repositories:_**
 
-To run **Sugarizer Application from the Web Browser** (GNU Linux/Mac OS/Windows), you should launch it with a special option to enable access to local files.
+1. The main repository where I worked on during the development of the project is https://github.com/iqraceme/Primero1. However, this is not the forked version of the original website’s repository.
 
-For **Chrome**, close ALL running instances of Chrome and re-launch it using the command line:
+2. I have added my project as a branch to the forked repo of the original website’s repository: https://github.com/iqraceme/Primero/tree/iqraceme/primero
 
-    chrome --allow-file-access-from-files index.html
+3. I have also added primero as a branch to sugar labs repo: https://github.com/sugarlabs/sugarizer
+
+4. You can check the android repo on: https://github.com/iqraceme/Primero-Android-
+
+**_Commits:_**
+
+1. You can see all my commits at the link – https://github.com/iqraceme/Primero1/commits/master. You can check the timestamps to see the commits related to any particular day.
+
+**_Blog Posts:_**
+
+I have written weekly blog reports in which I mentioned the progress I did in that particular week. All the blog posts can be accessed at: iqragsoc.wordpress.com
+
+Do check out the code!
+
+### Major Services
+
+We have the following major features in Primero1°:
+
+1. Primero1° Animated Loader
+2. Animated background in homeview
+3. Colored icons of all activities
+4. Colors added to specific activities
+5. Yellow and Green dropdowns for each Activity
+6. New Audio based MathStix Activity added to Primero1° web version
+7. Primero1° Android app
+8. Primero1° Amazon Kindle app
+9. Primero1° web app
+10. All the web, Android and Amazon apps made mobile responsive for all screen sizes.
+11. Certain features of some activities removed and adjusted for small children
+
+### Languages and Technologies
+
+HTML
+
+CSS
+
+Javascript
+
+### Loader
+
+The loader screen is enabled for:
+
+1. Safari
+
+2. Chrome
+
+3. Opera
+
+4. Firefox
+
+5. Edge
+
+6. Internet Explorer
+
+7. Small devices browsers like on Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile
+
+# Steps on how to use the Primero1° app
+
+The following video link below explains the steps for non-technical individuals using the Primero1° App.
+
+https://youtu.be/bW51n7ifaXs
+
+The steps below explain how to use the Primero1° application.
+
+1.Log onto the http://iqragsoc.com/iqragsoc.com/Primero or open the android/kindle app
+
+2.You will see a blue Primero1° loader.
+
+3.The loader will disappear after a few seconds and it will be redirected to the main page of Primero1° app.
+
+4.You will see icons on the homepage of Primero1°. Each of these icons leads to an Activity.
+
+5.You can hover your mouse on any of these icons. On hovering, you will see a green button. The green button will start a new Activity.
+
+6.The first Activity in the grid is the Maze Activity. The Maze Activity, featured in Primero1°, lets users navigate the smiley face to the end of the maze. The levels become more difficult as game proceeds. If you wish to exit an existing Activity, such as this one, simply click on the red button on the upper right hand side of the screen – you will be immediately taken to the home screen of the application.
+
+7.The Activity next to the Maze icon is the Paint Activity. The Paint Activity in Primero1° can be used to create artistic pieces using the draw, fill, and color features. If you wish to resume your last session of the Activity, click on the red button to return to the home screen. When you wish to resume your session, hover your cursor over the desired logo and click on the yellow circle. This will allow you to resume your Activity where you left off.
+
+8.Move your cursor to the third Activity icon.The third Activity featured in Primero1° is the TamTam MicroActivity. It can be used to learn about different sound-picture associations. To select a sound category, click on the pink button of your choice. To listen to a sound clip, simply click on the desired purple button.
+
+9.Let us now look at the Reflection Activity. You can find it by moving your cursor to the fourth Activity icon. The end goal is to edit the colors of all circles on both sides of the game until they are completely symmetrical. Select the reflection Activity from the black bar found on the top of the application page. To change the color of any circle, simply click until your desired color.
+
+10.The next Activity icon is made up of purple colored blocks. This is Memorize Activity. The Memorize Activity allows users to find matching tiles from the selection provided. The tiles include things like simple math problems and their answers and capital and lower case letters. To look at a tile, click on it. You can only look at 1 tile from Group 1 or 2 at the same time.
+
+11.The last Activity featured on is the Clock Activity. Users can choose between the simple clock and the nice clock. Users can also choose to display the time and date in digital form if needed.
+
+# Description of Files and Folders
+
+### Activities Folder:
+
+This folder contains all the Primero1° Activities..
+
+### API Folder:
+
+This folder contains all the API’s used with Primero app.
+
+### CSS Folder
+
+This folder contains all the css files
+
+### Icons Folder:
+
+This folder contains all the icons.
+
+### Images Folder:
+
+This folder contains all the images.
+
+### JS Folder:
+
+This folder contains all the JS files.
+
+### Lib Folder
+
+This folder contains all the libraries used
+
+### Root Folder:
+
+This will contain:
+
+1. All html pages
+
+2. .htaccess file
+
+3. README.md file 
+
+4. Other folders
+
+# Design Layout of Website/Project
+
+**_Few Screenshots:_**
+
+**Screenshot 1: Opening Screen**
+
+![image alt text](https://github.com/iqraceme/Primero1/blob/master/images/1.png)
+
+**Screenshot 2: Main Screen with Activity Icons**
+
+![image alt text](https://github.com/iqraceme/Primero1/blob/master/images/PIC-2.JPG)
+
+**Screenshot 3: TamTamMini Shown on an Android smartphone screen**
+
+![image alt text](https://github.com/iqraceme/Primero1/blob/master/images/pic8.JPG)
+
+**Screenshot 4: The Paint Activity**
+
+![image alt text](https://github.com/iqraceme/Primero1/blob/master/images/primero.JPG)
+
+### Code and Contribution
+
+The code has been restructured, unnecessary code has been removed, comments were added wherever required, proper indentation was provided, and simple names were used which makes it a contributor-friendly codebase. So, hop on and contribute now!
+
+### How to run the code
+
+#### Getting the code
+
+Clone the repository
+
+### Installation
+
+To run Application from the Web Browser (GNU Linux/Mac OS/Windows), you should launch it with a special option to enable access to local files.
+
+For Chrome, close ALL running instances of Chrome and re-launch it using the command line:
+chrome --allow-file-access-from-files index.html
 
 On Mac OS, you should launch:
+open -n /Applications/Google\ Chrome.app --args --allow-file-access-from-files
 
-	open -n /Applications/Google\ Chrome.app --args --allow-file-access-from-files
+For Firefox, type in the address bar:
+about:config
 
-For **Firefox**, type in the address bar:
+# Addendum for iOS App
 
-    about:config
-    
-Search for the `security.fileuri.strict_origin_policy` parameter and 
-set it to `false`.
+Please follow the following steps for the development of an ios app.
 
-For **Safari** go to the `Safari/Preferences...` menu, under Advanced panel check the *Show develop menu in menu bar* box. Then from the `Develop` menu, select *Disable local file restrictions*.
+## **1.Installing the Requirements**
 
+### Xcode
 
+## There are two ways to download Xcode:
 
-# Sugarizer Web Application
+* from the [App Store](https://itunes.apple.com/us/app/xcode/id497799835?mt=12), available by searching for "Xcode" in the App Store application.
 
-[Try it now! (try.sugarizer.org)](http://try.sugarizer.org/)
+* from [Apple Developer Downloads](https://developer.apple.com/downloads/index.action), which requires registration as an Apple Developer.
 
-Sugarizer Web App is a web application that runs on any device with a recent version of Chrome, Firefox, Safari or EDGE browser.
+## Once Xcode is installed, several command-line tools need to be enabled for Cordova to run. From the command line, run:
 
-As a web application, it does not run offline and requires a permanent network connection to a **Sugarizer Server**.
+## $ xcode-select --install
 
-Sugarizer Server allow deployment of Sugarizer on a local server, for example on a school server, so expose locally Web Application (without Internet access). Sugarizer Server can also be used to provide collaboration features for Sugarizer Application on the network.
+## **2. Installing Cordova**
 
-To install your own Sugarizer Server, follow instructions on
-[Sugarizer Server repository](https://github.com/llaske/sugarizer-server)
+Cordova command-line runs on [Node.js](http://nodejs.org/) and is available on [NPM](https://npmjs.org/package/cordova). Follow [platform specific guides](https://cordova.apache.org/docs/en/latest/index.html#develop-for-platforms) to install additional platform dependencies. Open a command prompt or Terminal, and type npm install -g cordova.
 
+Copy
 
+$ npm install -g cordova
 
-# Activities
+npm install -g cordova
 
-Sugarizer includes a bunch of pedagogic activities.
-All activities could be found in the [activities](activities) directory. Each activity has its own subdirectory. So for example, the *Abecedarium* activity is located in [activities/Abecedarium.activity](activities/Abecedarium.activity)
 
-You could distribute Sugarizer with whatever activities you want.
-To do that, you first need to adapt the content of the [activities](activities) directory  to match your wish: removing activities you don't want to distribute and adding in this directory new activities you want to include.
 
-Then you need to update the [activities.json](activities.json) file to reflect your choice.
-Here an example of this file:
+## **3. Create a project**
 
-	[
-		{"id": "org.sugarlabs.GearsActivity", "name": "Gears", "version": 6, "directory": "activities/Gears.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.sugarlabs.MazeWebActivity", "name": "Maze Web", "version": 2, "directory": "activities/MazeWeb.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.PaintActivity", "name": "Paint", "version": 1, "directory": "activities/Paint.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.TamTamMicro", "name": "TamTam Micro", "version": 1, "directory": "activities/TamTamMicro.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.MemorizeActivity", "name": "Memorize", "version": 1, "directory": "activities/Memorize.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpg-france.physicsjs", "name": "Physics JS", "version": 1, "directory": "activities/PhysicsJS.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.sugarlabs.CalculateActivity", "name": "Calculate", "version": 1, "directory": "activities/Calculate.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.sugarlabs.TurtleBlocksJS", "name": "Turtle Blocks JS", "version": 1, "directory": "activities/TurtleBlocksJS.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.sugarlabs.Clock", "name": "Clock Web", "version": 1, "directory": "activities/Clock.activity", "icon": "activity/activity-clock.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.RecordActivity", "name": "Record", "version": 1, "directory": "activities/Record.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.Abecedarium", "name": "Abecedarium", "version": 5, "directory": "activities/Abecedarium.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.KAView", "name": "KA View", "version": 1, "directory": "activities/KAView.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.FoodChain", "name": "FoodChain", "version": 4, "directory": "activities/FoodChain.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpc-france.labyrinthjs", "name": "Labyrinth JS", "version": 1, "directory": "activities/LabyrinthJS.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.TankOp", "name": "Tank Operation", "version": 1, "directory": "activities/TankOp.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.sugarlabs.ChatPrototype", "name": "ChatPrototype", "version": 1, "directory": "activities/ChatPrototype.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpcfrance.Gridpaint", "name": "Grid Paint", "version": 2, "directory": "activities/Gridpaint.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.olpc-france.LOLActivity", "name": "Last One Loses Activity", "version": 1, "directory": "activities/LastOneLoses.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.sugarlabs.StopwatchActivity", "name": "Stopwatch", "version": 1, "directory": "activities/Stopwatch.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.sugarlabs.Markdown", "name": "Markdown", "version": 3, "directory": "activities/Markdown.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.sugarlabs.GTDActivity", "name": "Get Things Done", "version": 1, "directory": "activities/GetThingsDone.activity", "icon": "activity/activity-icon.svg", "favorite": true, "activityId": null},
-		{"id": "org.laptop.WelcomeWebActivity", "name": "WelcomeWeb", "version": 1, "directory": "activities/WelcomeWeb.activity", "icon": "activity/welcome-activity.svg", "favorite": true, "activityId": null},
-		{"id": "org.vpri.EtoysActivity", "name": "Etoys", "version": 1, "directory": "activities/Etoys.activity", "icon": "activity/activity-etoys.svg", "favorite": false, "activityId": null},
-		{"id": "io.cordova.all_in_one_plugin_sample", "name": "Cordova", "version": 1, "directory": "activities/Cordova.activity", "icon": "activity/activity-icon.svg", "favorite": false, "activityId": null},
-		{"id": "org.olpcfrance.MediaViewerActivity", "name": "MediaViewer", "version": 1, "directory": "activities/MediaViewer.activity", "icon": "activity/activity-icon.svg", "favorite": false, "activityId": null}
-  	]
+Create a blank Cordova project using the command-line tool. Navigate to the directory where you wish to create your project and type cordova create <path>.
 
-Each line in this file is one activity. Here is the description of each field:
+For a complete set of options, type cordova help create.
 
-* **id**: Activity unique ID
-* **name**: Display name of the activity
-* **version**: Activity version number
-* **directory**: Location directory of the activity in Sugarizer
-* **icon**: Location of the icon in the activity directory
-* **favorite**: true means that the activity is in the favorite view
-* **activityId** Reserved for internal use
+Copy
 
-Remove in this file rows for activities that you want to remove. Add in this file a line for each activity you want to add.
+$ cordova create MyApp
 
-Note than:
+cordova create MyApp
 
-1. The [activities/ActivityTemplate](activities/ActivityTemplate) directory does not contain a real activity. It's just a template that you could use to create your own activity.
-2. The [activities.json](activities.json) is used only by Sugarizer Application, the Web Application relies on the */api/activities* API that dynamically browse the [activities](activities) directory. By the way, it's a good practice to match the content of the activities.json file and the content of the activities directory.
+**4. ****Add a platform**
 
-# Create your own activity
+After creating a Cordova project, navigate to the project directory. From the project directory, you need to add a platform for which you want to build your app.
 
-With Sugarizer, it's easy to create an activity with a bunch of HTML and JavaScript.
+1. To add a platform, type cordova platform add <platform name>.
 
-![](images/tutorial_teaser.png)
+2. For a complete list of platforms you can add, run cordova platform.
 
-If you're interested to create your own activity, a full tutorial will guide you between all development steps:
+$ cd MyApp
 
-* **Step 1**: create the activity from a template
-* **Step 2**: customize icon and content
-* **Step 3**: add a toolbar icon
-* **Step 4**: handle journal and datastore
-* **Step 5**: localize the activity
-* **Step 6**: handle multi-user with presence
+$ cordova platform add ios
 
-Let's start [here](docs/tutorial.md).
+cd MyApp cordova platform add ios
 
+## **5. Run your app**
 
-# Unit testing
+From the command line, run cordova run <platform name>.
 
-To run unit tests for Sugarizer Application, run "file:///PathToYourSugarizerRepo/test/index.html" in your browser.
+$ cordova run ios
 
+# Credits
 
-# Build Application for Android, iOS or Windows 10
+The credits goes to all my mentors who guided at every step of the project.
 
-Sugarizer Application could be packaged as an Android, iOS and Windows 10 application using [Cordova](http://cordova.apache.org/).
-
-To build it, first install Cordova as described [here](http://cordova.apache.org/).
-
-Then create a directory for Sugarizer Cordova and put the content of the git repository in the www directory:
-
-	cordova create sugar-cordova
-	cd sugar-cordova
-	rm config.xml
-	rm -fr www
-	git clone https://github.com/llaske/sugarizer.git www
-
-Add the platform you want to add (here Android):
-
-	cordova platform add android
-
-Replace the auto generated config.xml file by the Sugarizer one:
-
-	cp www/config.xml .
-
-Build the package:
-
-	cordova build android
-
-On Android, if you want to generate the Sugarizer OS version, remove the SugarizerOS comment around the `cordova-plugin-sugarizeros` plugin in [config.xml](config.xml) file.
-
-# Reduce package size
-
-The current size of Sugarizer is about 300 Mb. This huge size is related to media content and resources include in two activities:
-
-* **Abecedarium activity**: about 150 Mb
-* **Etoys activity**: about 100 Mb
-
-By the way, both activities are able to retrieve the content remotely if its not deployed locally. So, if you want to reduce the Sugarizer package size (specifically for deployment on mobile) you could either remove completely those two activities or just remove the media content of this activities.
-
-To remove activities, just remove both activities directory and update [activities.json](activities.json) file as explain above.
-
-To remove media content for **Abecedarium**, remove directories:
-
-* [activities/Abecedarium.activity/audio/en](activities/Abecedarium.activity/audio/en)
-* [activities/Abecedarium.activity/audio/fr](activities/Abecedarium.activity/audio/fr)
-* [activities/Abecedarium.activity/audio/es](activities/Abecedarium.activity/audio/es)
-* [activities/Abecedarium.activity/images/database](activities/Abecedarium.activity/images/database)
-
-The activity will look for media content on the server referenced in [activities/Abecedarium.activity/config.js](activities/Abecedarium.activity/config.js), by default `http://server.sugarizer.org/activities/Abecedarium.activity/`.
-
-To remove resources for **Etoys**, remove directory [activities/Etoys.activities/resources](activities/Etoys.activities/resources) and replace the value `resources/etoys.image` in [activities/Etoys.activities/index.html](activities/Etoys.activities/index.html) by the remote location of the resources, for example `http://server.sugarizer.org/activities/Etoys.activity/resources/etoys.image`.
-
-# Optimize performance
-
-If you want to optimize JavaScript performance, you could generate an optimized version of Sugarizer with [Grunt](http://gruntjs.com). This optimized version will minimize and reduce size of all JavaScript files.
-
-First ensure than Node.js and npm is installed on your machine. See [here](http://nodejs.org/) for more information.
-
-The [Gruntfile.js](Gruntfile.js) contains tasks settings to build an optimized version of Sugarizer. To do that, ensure first that grunt is installed:
-
-	npm install -g grunt-cli
-
-Then install specific component for Sugarizer by running:
-
-	npm install
-
-Finally launch:
-
-	grunt
-
-At the end of the process, the `build` directory will contain the optimized version of each file in a same directory that the initial one, so you could just copy files:
-
-	cp -r build/* .
-
-# Localization
-
-If you're not a developer and you want to translate Sugarizer into your own language, please go to the [Sugarizer translation platform](http://translate.sugarizer.org) where you will be able to do that. If you're a developer, the following paragraphs will explain to you how the Sugarizer localization system works.
-
-Sugarizer use [webL10n](https://github.com/fabi1cazenave/webL10n) localization system by Fabien Cazenave.
-
-Here how to add a new translation. See a video tutorial [here](https://youtu.be/vTPVegrVm5A).
-
-All strings are localized in the [locale.ini](locale.ini) file at the root of the repository.
-If you want to add a new translation, copy the whole [en] section at the end of the file and:
-
-* Replace "en" by the [ISO 639-1 code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) of your language. For example, "fr" for French,
-* Substitute the right side of the "=" character on each line by the string localized in your language. For example:
-
-		[fr]
-		StartNew=Commencer un nouveau
-		NameActivity=Activité {{name}}
-		RemoveFavorite=Retirer le favori
-
-Warning: Note that text inside {{}} must not be localized. So here, **{{name}}** is not translated.
-
-Sugarizer automatically detects the navigator language. To enable this detection, you need to update the settings.init function in the [lib/settings.js](lib/settings.js) file. Add a test on your language code. For example in French:
-
-	else if (navigatorLanguage.indexOf("fr") != -1)
-		this.language = "fr";
-
-Sugarizer settings display a list of all available languages. You need to add your language in this dialog. For this you have to:
-
-* Add a new string in [locale.ini](locale.ini) with the name of your language in English. For example:
-
-		French=French
-
-* Add the same line for all languages/sections in the file. If you're able to do that, translate the right side of the "=" character with the localized string for the name of your language. If you don't know how to translate it, just let the English word. For example:
-
-		French=Français
-
-* Add your string in the [js/dialog.js](dialog.js) file in the create function of the Enyo class Sugar.DialogLanguage. You should give the ISO 639-1 language code and the new string for your language name. For example:
-
-		{code: "fr", icon: null, name: l10n.get("French")},
-
-That's all. Test the result in your browser.
-
-Note that this translation is for Sugarizer only. Each activity could provide its own localization feature.
-
-
-# How to contribute
-
-As all Open Source software, contributions to this software are welcome.
-
-Read [CONTRIBUTING](CONTRIBUTING.md) to learn more about how to contribute to Sugarizer.
-
-
-
-# License
-
-Sugarizer is licensed under the `Apache v2` license.  See [LICENSE](LICENSE) for full license text.  Most Sugarizer activities use this license too but some could use a different license, check the [activities](activities) directory to be sure.

@@ -12,7 +12,7 @@ function Game(stage,xocolor,doc,datastore,activity){
 	this.mode = null;
 	this.dotsarr = [];
 	this.buddy = ["#FFFFFF","#000000",xocolor.fill,xocolor.stroke];
-	this.rainbow = ['#FFFFFF','#000000','#FF0000','#FF8000','#FFFF00','#00FF00','#00FFFF','#0000FF','#FF00FF'];
+	this.rainbow = ['#d34343','#2abced','#FF0000','#99ff00','#ff0054','#9400ff','#00FFFF','#ff00d0','#e100ff'];
 	this.colours = this.buddy;
 	this.robot = false;
 	this.gameOver = false;

@@ -121,7 +121,6 @@ enyo.kind({
 		this.switchFavorite(inEvent.dispatchTarget.container, activitiesList[inEvent.index]);
 	},
 	switchFavorite: function(favorite, activity) {
-		stats.trace(constant.viewNames[app.getView()], 'switch_favorite', activity.id, null);
 		util.vibrate();
 		favorite.setColorized(preferences.switchFavoriteActivity(activity));
 		favorite.container.render();
@@ -177,9 +176,6 @@ enyo.kind({
 	},
 	hideActivityPopup: function(icon) {
 		// Hide popup
-		if (!this.$.activityPopup) {
-			return true;
-		}
 		if (this.$.activityPopup.cursorIsInside() || icon.cursorIsInside()) {
 			return false;
 		}

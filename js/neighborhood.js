@@ -19,9 +19,6 @@ enyo.kind({
 		{name: "message", classes: "cloud-message", showing: false},
 		{name: "settings", classes: "cloud-line", showing: false, components:[
 			{name: "gotosettings", kind: "Sugar.IconButton", icon: {directory: "icons", icon: "preferences-system.svg"}, classes: "listview-button cloud-gotosettings", ontap: "doSettings"}
-		]},
-		{name: "refresh", classes: "cloud-line", showing: false, components:[
-			{name: "refreshstate", kind: "Sugar.IconButton", icon: {directory: "icons", icon: "system-restart.svg"}, classes: "listview-button cloud-gotosettings", ontap: "doRefresh"}
 		]}
 	],
 	// Constructor: init list
@@ -133,7 +130,6 @@ enyo.kind({
 			this.$.empty.setShowing(false);
 			this.$.message.setShowing(false);
 			this.$.settings.setShowing(false);
-			this.$.refresh.setShowing(false);
 			presence.listUsers(enyo.bind(this, "userListReceived"));
 			presence.listSharedActivities(enyo.bind(this, "sharedListReceived"));
 		}
@@ -145,7 +141,6 @@ enyo.kind({
 			this.$.empty.setShowing(false);
 			this.$.message.setShowing(false);
 			this.$.settings.setShowing(false);
-			this.$.refresh.setShowing(false);
 			sugarizerOS.isWifiEnabled(function(value){
 				if (value != 0) {
 					sugarizerOS.scanWifi();
@@ -166,13 +161,7 @@ enyo.kind({
 			this.$.server.setShowing(false);
 			this.$.empty.setShowing(true);
 			this.$.message.setShowing(true);
-			if (preferences.isConnected()) {
-				this.$.message.setContent(l10n.get("UnableToConnect"));
-				this.$.refresh.setShowing(true);
-			} else {
-				this.$.message.setContent(l10n.get("ServerNotSet"));
-				this.$.settings.setShowing(true);
-			}
+			this.$.settings.setShowing(true);
 		}
 	},
 
@@ -192,8 +181,8 @@ enyo.kind({
 		items.push({
 			icon: {directory: "icons", icon: "system-shutdown.svg"},
 			colorized: false,
-			name: l10n.get("Logoff"),
-			action: enyo.bind(this, "doLogoff"),
+			name: l10n.get("Shutdown"),
+			action: enyo.bind(this, "doShutdown"),
 			data: null
 		});
 		items.push({
@@ -216,63 +205,33 @@ enyo.kind({
 		this.getPopup().showPopup();
 	},
 	hideBuddyPopup: function(icon) {
-		if (!this || !this.getPopup || !icon || !this.getPopup() || this.getPopup().cursorIsInside() || icon.cursorIsInside()) {
+		if (this.getPopup().cursorIsInside() || icon.cursorIsInside()) {
 			return false;
 		}
 		this.getPopup().hidePopup();
 		return true;
 	},
-	doLogoff: function() {
-		stats.trace(constant.viewNames[app.getView()], 'click', 'logoff');
+	doShutdown: function() {
 		this.getPopup().hidePopup();
-		if (!preferences.isConnected() || (preferences.isConnected() && !preferences.getOptions("sync"))) {
-			this.otherview = this.$.otherview.createComponent({kind: "Sugar.DialogWarningMessage"}, {owner:this});
-			this.otherview.show();
-		} else {
-			preferences.addUserInHistory();
-			util.cleanDatastore();
-			util.restartApp();
-		}
+		util.quitApp();
 	},
 	doRestart: function() {
-		stats.trace(constant.viewNames[app.getView()], 'click', 'restart');
 		util.restartApp();
 	},
 	doSettings: function() {
-		stats.trace(constant.viewNames[app.getView()], 'click', 'my_settings');
 		this.getPopup().hidePopup();
 		this.otherview = this.$.otherview.createComponent({kind: "Sugar.DialogSettings"}, {owner:this});
 		this.otherview.show();
-	},
-	doRefresh: function() {
-		if (!presence.isConnected()) {
-			var that = this;
-			presence.joinNetwork(function(error, user) {
-				if (error) {
-					console.log("WARNING: Can't connect to presence server");
-				} else {
-					that.updateNetworkState();
-				}
-			});
-		} else {
-			this.updateNetworkState();
-		}
-
 	},
 
 	// Popup menu for server handling
 	showServerPopup: function(icon) {
 		// Create popup
-		var name = myserver.getServer();
-		var info = preferences.getServer();
-		if (info && info.name) {
-			name = info.name;
-		}
 		this.getPopup().setHeader({
 			icon: icon.icon,
 			colorized: true,
 			colorizedColor: icon.colorizedColor,
-			name: name,
+			name: myserver.getServer(),
 			title: l10n.get("Connected"),
 			action: null
 		});
@@ -283,7 +242,7 @@ enyo.kind({
 		this.getPopup().showPopup();
 	},
 	hideServerPopup: function(icon) {
-		if (!this || !this.getPopup || !icon || !this.getPopup() || this.getPopup().cursorIsInside() || icon.cursorIsInside()) {
+		if (this.getPopup().cursorIsInside() || icon.cursorIsInside()) {
 			return false;
 		}
 		this.getPopup().hidePopup();
@@ -400,7 +359,7 @@ enyo.kind({
 		})
 	},
 	hideWifiPopup: function (icon) {
-		if ((!this || !this.getPopup || !icon || !this.getPopup() || this.getPopup() && this.getPopup().cursorIsInside()) || icon.cursorIsInside()) {
+		if ((this.getPopup() && this.getPopup().cursorIsInside()) || icon.cursorIsInside()) {
 			return false;
 		}
 		this.getPopup().hidePopup();
@@ -425,7 +384,7 @@ enyo.kind({
 		this.getPopup().showPopup();
 	},
 	hideUserPopup: function(icon) {
-		if (!this || !this.getPopup || !icon || !this.getPopup() || this.getPopup().cursorIsInside() || icon.cursorIsInside()) {
+		if (this.getPopup().cursorIsInside() || icon.cursorIsInside()) {
 			return false;
 		}
 		this.getPopup().hidePopup();
@@ -458,7 +417,7 @@ enyo.kind({
 		this.getPopup().showPopup();
 	},
 	hideActivityPopup: function(icon) {
-		if (!this || !this.getPopup || !icon || !this.getPopup() || this.getPopup().cursorIsInside() || icon.cursorIsInside()) {
+		if (this.getPopup().cursorIsInside() || icon.cursorIsInside()) {
 			return false;
 		}
 		this.getPopup().hidePopup();
@@ -539,11 +498,10 @@ enyo.kind({
 		this.$.empty.applyStyle("margin-left", (canvas_center.x-constant.sizeEmpty/4-10)+"px");
 		var margintop = (canvas_center.y-constant.sizeEmpty/4-80);
 		this.$.empty.applyStyle("margin-top", margintop+"px");
-		this.$.message.applyStyle("margin-top", (margintop+70)+"px");;
+		this.$.message.applyStyle("margin-top", (margintop+70)+"px");
+		this.$.message.setContent(l10n.get("ServerNotSet"));
 		this.$.gotosettings.applyStyle("margin-top", (margintop+90)+"px");
 		this.$.gotosettings.setText(l10n.get("MySettings"));
-		this.$.refreshstate.applyStyle("margin-top", (margintop+90)+"px");
-		this.$.refreshstate.setText(l10n.get("Refresh"));
 		tutorial.setElement("owner", this.$.owner.getAttribute("id"));
 		tutorial.setElement("server", this.$.server.getAttribute("id"));
 
@@ -853,18 +811,12 @@ enyo.kind({
 
 	// Constructor
 	create: function() {
+		// Localize items
 		this.inherited(arguments);
-		this.localize();
+		this.$.neighborsearch.setPlaceholder(l10n.get("SearchNeighbor"));
 	},
 
 	rendered: function() {
-		this.inherited(arguments);
-		this.localize();
-	},
-
-	localize: function() {
-		// Localize items
-		this.$.neighborsearch.setPlaceholder(l10n.get("SearchNeighbor"));
 		this.$.radialbutton.setNodeProperty("title", l10n.get("Home"));
 		this.$.helpbutton.setNodeProperty("title", l10n.get("Tutorial"));
 	},
@@ -888,7 +840,6 @@ enyo.kind({
 	startTutorial: function() {
 		tutorial.setElement("radialbutton", this.$.radialbutton.getAttribute("id"));
 		tutorial.setElement("neighborsearch", this.$.neighborsearch.getAttribute("id"));
-		stats.trace(constant.viewNames[app.getView()], 'tutorial', 'start', null);
 		tutorial.start();
 	}
 });

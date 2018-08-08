@@ -1,7 +1,7 @@
 
 // Sugar Libraries (initialized by require)
 var app = null;
-var toolbar = null;
+//var toolbar = null;
 var mouse = {position: {x: -1, y: -1}};
 var iconLib;
 var xoPalette;
@@ -14,18 +14,16 @@ var util;
 var myserver;
 var humane;
 var tutorial;
-var stats;
-var autosync;
 
 
 
 // Main app class
 enyo.kind({
 	name: "Sugar.Desktop",
-	kind: enyo.Control,
+	kind: "FittableRows",
 	components: [
-		{name: "owner", kind: "Sugar.Icon", size: constant.sizeOwner, colorized: true, classes: "owner-icon", showing: false},
-		{name: "journal", kind: "Sugar.Icon", size: constant.sizeJournal, ontap: "showJournal", classes: "journal-icon", showing: false},
+		// {name: "owner", kind: "Sugar.Icon", size: constant.sizeOwner, colorized: true, classes: "owner-icon", showing: false},
+		// {name: "journal", kind: "Sugar.Icon", size: constant.sizeJournal, ontap: "showJournal", classes: "journal-icon", showing: false},
 		{name: "desktop", showing: true, onresize: "resize", components: []},
 		{name: "otherview", showing: true, components: []},
 		{name: "activityPopup", kind: "Sugar.Popup", showing: false},
@@ -38,103 +36,87 @@ enyo.kind({
 		this.inherited(arguments);
 		this.timer = null;
 		this.otherview = null;
-		this.toolbar = null;
-		util.setToolbar(this.getToolbar());
-		this.$.owner.setIcon({directory: "icons", icon: "owner-icon.svg"});
-		this.$.owner.setPopupShow(enyo.bind(this, "showBuddyPopup"));
-		this.$.owner.setPopupHide(enyo.bind(this, "hideBuddyPopup"));
-		this.$.journal.setIcon({directory: "icons", icon: "activity-journal.svg"});
-		this.restrictedModeInfo = { start: 0 };
-		util.hideNativeToolbar();
+	//	this.toolbar = null;
+	//	util.setToolbar(this.getToolbar());
+		// this.$.owner.setIcon({directory: "icons", icon: "owner-icon.svg"});
+		// this.$.owner.setPopupShow(enyo.bind(this, "showBuddyPopup"));
+		// this.$.owner.setPopupHide(enyo.bind(this, "hideBuddyPopup"));
+		// this.$.journal.setIcon({directory: "icons", icon: "activity-journal.svg"});
+		// this.restrictedModeInfo = { start: 0 };
+		//util.hideNativeToolbar();
 
 		// Load and sort journal
 		this.loadJournal();
-		this.isJournalFull = false;
-		this.testJournalSize();
 
 		// Call activities list service
 		if (util.getClientType() == constant.webAppType) {
 			this.$.activities.setUrl(myserver.getActivitiesUrl());
-			myserver.getActivities(enyo.bind(this, "queryActivitiesResponse"), enyo.bind(this, "queryActivitiesFail"));
 		} else {
 			this.$.activities.setUrl(constant.staticInitActivitiesURL);
-			this.$.activities.send();
 		}
+		this.$.activities.send();
 
-		// Check change on preferences from server
+		// Call network id
 		if (preferences.isConnected()) {
+			// Create a new user on the network
 			var networkId = preferences.getNetworkId();
-			var that = this;
-			myserver.getUser(
-				networkId,
-				function(inSender, inResponse) {
-					var changed = preferences.merge(inResponse);
-					if (changed) {
+			if (networkId == null) {
+				myserver.postUser(
+					{
+						name: preferences.getName(),
+						color: preferences.getColor(),
+						language: preferences.getLanguage()
+					},
+					function(inSender, inResponse) {
+						preferences.setNetworkId(inResponse._id);
+						preferences.setPrivateJournal(inResponse.private_journal);
+						preferences.setSharedJournal(inResponse.shared_journal);
 						preferences.save();
-						util.restartApp();
-					} else if (that.currentView == constant.journalView) {
-						that.otherview.updateNetworkBar();
+						presence.joinNetwork(function (error, user) {
+							if (error) {
+								console.log("WARNING: Can't connect to presence server");
+							}
+						});
+					},
+					function() {
+						console.log("WARNING: Error creating network user");
 					}
-					presence.joinNetwork(function (error, user) {
-						if (error) {
-							console.log("WARNING: Can't connect to presence server");
-						}
-					});
-					autosync.synchronizeJournal(
-						function(count) {
-							if (count) {
-								setTimeout(function() {
-									var message = l10n.get("RetrievingJournal");
-									if (message) humane.log(message);
-								}, 100);
-								var toolbar = that.getToolbar();
-								if (toolbar.showSync) {
-									toolbar.showSync(true);
-								}
-							}
-						},
-						function(locale, remote, error) {
-							var toolbar = that.getToolbar();
-							if (toolbar.showSync) {
-								toolbar.showSync(false);
-							}
+				);
+			}
 
-							// Locale journal has changed, update display
-							if (locale && !error) {
-								that.loadJournal();
-								that.testJournalSize();
-								preferences.updateEntries();
-								that.draw();
-								that.render();
-							}
+			// Retrieve user settings
+			else {
+				var that = this;
+				myserver.getUser(
+					networkId,
+					function(inSender, inResponse) {
+						var changed = preferences.merge(inResponse);
+						if (changed) {
+							preferences.save();
+							util.restartApp();
+						} else if (that.currentView == constant.journalView) {
+							that.otherview.updateNetworkBar();
 						}
-					);
-				},
-				function() {
-					console.log("WARNING: Can't read network user settings");
-				}
-			);
+						presence.joinNetwork(function (error, user) {
+							if (error) {
+								console.log("WARNING: Can't connect to presence server");
+							}
+						});
+					},
+					function() {
+						console.log("WARNING: Can't read network user settings");
+					}
+				);
+			}
 		}
 	},
+ //Load Sounds
 
 	// Load and sort journal
 	loadJournal: function() {
 		this.journal = datastore.find();
 		this.journal = this.journal.sort(function(e0, e1) {
 			return parseInt(e1.metadata.timestamp) - parseInt(e0.metadata.timestamp);
-		});
-	},
-
-	// Test Journal size to ensure it's not full
-	testJournalSize: function() {
-		this.isJournalFull = false;
-		var that = this;
-		util.computeDatastoreSize(function(size) {
-			var percentremain = ((size.remain/size.total)*100);
-			if (percentremain < constant.minStorageSizePercent) {
-				console.log("WARNING: Journal almost full");
-				that.isJournalFull = true;
-			}
 		});
 	},
 
@@ -200,9 +182,6 @@ enyo.kind({
 		if (this.toolbar == null) {
 			this.toolbar = new Sugar.DesktopToolbar();
 		}
-		if (this.currentView != constant.listView && this.otherview != null) {
-			return this.otherview.getToolbar();
-		}
 		return this.toolbar;
 	},
 
@@ -218,7 +197,7 @@ enyo.kind({
 			this.showView(preferences.getView());
 		}
 		this.draw();
-		tutorial.setElement("owner", this.$.owner.getAttribute("id"));
+		//tutorial.setElement("owner", this.$.owner.getAttribute("id"));
 	},
 
 	// Draw desktop
@@ -227,134 +206,313 @@ enyo.kind({
 		var items = [];
 		enyo.forEach(this.$.desktop.getControls(), function(item) {	items.push(item); });
 		for (var i = 0 ; i < items.length ; i++) { items[i].destroy(); };
-		var tutorialActivity = false;
+		//var tutorialActivity = false;
 
 		// Compute center and radius
-		var canvas_center = util.getCanvasCenter();
-		var icon_size = constant.iconSizeStandard;
+		//var canvas_center = util.getCanvasCenter();
+		var icon_size = 90;
 		var icon_padding = icon_size*constant.iconSpacingFactor;
 		var semi_size = icon_size/2;
-		var jdeltay = (canvas_center.dy < 480) ? -12 : 0;
+		//var jdeltay = (canvas_center.dy < 480) ? -12 : 0;
 
 		// Draw XO owner
-		this.$.owner.applyStyle("margin-left", (canvas_center.x-constant.sizeOwner/2)+"px");
-		this.$.owner.applyStyle("margin-top", (canvas_center.y-constant.sizeOwner/2)+"px");
-		this.$.journal.setColorized(this.journal.length > 0);
-		this.$.journal.applyStyle("margin-left", (canvas_center.x-constant.sizeJournal/2)+"px");
-		this.$.journal.applyStyle("margin-top", (canvas_center.y+constant.sizeOwner-constant.sizeJournal+jdeltay)+"px");
-		this.$.owner.setShowing(this.currentView == constant.radialView);
-		this.$.journal.setShowing(this.currentView == constant.radialView);
+		// this.$.owner.applyStyle("margin-left", (canvas_center.x-constant.sizeOwner/2)+"px");
+		// this.$.owner.applyStyle("margin-top", (canvas_center.y-constant.sizeOwner/2)+"px");
+		// this.$.journal.setColorized(this.journal.length > 0);
+		// this.$.journal.applyStyle("margin-left", (canvas_center.x-constant.sizeJournal/2)+"px");
+		// this.$.journal.applyStyle("margin-top", (canvas_center.y+constant.sizeOwner-constant.sizeJournal+jdeltay)+"px");
+		//this.$.owner.setShowing(this.currentView == constant.radialView);
+		//this.$.journal.setShowing(this.currentView == constant.radialView);
 
 		// Compute ring size and shape
 		var activitiesList = preferences.getFavoritesActivities();
 		var activitiesCount = activitiesList.length;
 		var activitiesIndex = 0;
-		var radiusx, radiusy, base_angle, spiralMode, restrictedMode;
-		var PI2 = Math.PI*2.0;
-		radiusx = radiusy = Math.max(constant.ringMinRadiusSize, Math.min(canvas_center.x-icon_size,canvas_center.y-icon_size));
-		var circumference = PI2*radiusx;
-		if ((circumference/activitiesList.length) >= constant.iconSpacingFactor*icon_padding) {
-			spiralMode = restrictedMode = false;
-			base_angle = (PI2/parseFloat(activitiesList.length));
-		} else {
-			if (this.hasRoomForSpiral(canvas_center, icon_padding)) {
-				spiralMode = true; restrictedMode = false;
-				radiusx = radiusy = icon_padding*constant.ringInitSpaceFactor;
-				activitiesCount = parseInt((PI2*radiusx)/icon_padding);
-				base_angle = PI2/activitiesCount;
-			} else {
-				restrictedMode = true; spiralMode = false;
-				activitiesCount = parseInt(circumference/icon_padding)-1;
-				this.restrictedModeInfo.count = activitiesCount;
-				this.restrictedModeInfo.length = activitiesList.length;
-				base_angle = (PI2/parseFloat(activitiesCount+1));
-			}
-		}
+
+		// var radiusx, radiusy, base_angle, spiralMode, restrictedMode;
+		// var PI2 = Math.PI*2.0;
+		// radiusx = radiusy = Math.max(constant.ringMinRadiusSize, Math.min(canvas_center.x-icon_size,canvas_center.y-icon_size));
+		// var circumference = PI2*radiusx;
+		// if ((circumference/activitiesList.length) >= constant.iconSpacingFactor*icon_padding) {
+		// 	spiralMode = restrictedMode = false;
+		// 	base_angle = (PI2/parseFloat(activitiesList.length));
+		// } else {
+		// 	if (this.hasRoomForSpiral(canvas_center, icon_padding)) {
+		// 		spiralMode = true; restrictedMode = false;
+		// 		radiusx = radiusy = icon_padding*constant.ringInitSpaceFactor;
+		// 		activitiesCount = parseInt((PI2*radiusx)/icon_padding);
+		// 		base_angle = PI2/activitiesCount;
+		// 	} else {
+		// 		restrictedMode = true; spiralMode = false;
+		// 		activitiesCount = parseInt(circumference/icon_padding)-1;
+		// 		this.restrictedModeInfo.count = activitiesCount;
+		// 		this.restrictedModeInfo.length = activitiesList.length;
+		// 		base_angle = (PI2/parseFloat(activitiesCount+1));
+		// 	}
+		// }
 
 		// Draw activity icons
-		var angle = -Math.PI/2.0-base_angle;
-		for (var i = 0 ; i < activitiesList.length ; i++) {
-			// Compute icon position
-			var activity = activitiesList[i];
-			var ix, iy;
-			var previousAngle = angle;
-			if (!spiralMode) {
-				angle += base_angle;
-				ix = (canvas_center.x+Math.cos(angle)*radiusx-semi_size);
-				iy = (canvas_center.y+Math.sin(angle)*radiusy-semi_size);
-			} else {
-				angle += base_angle;
-				if (activitiesIndex >= activitiesCount) {
-					radiusx = radiusy = radiusx + icon_padding*constant.ringSpaceFactor;
-					activitiesCount = parseInt((PI2*radiusx)/icon_padding);
-					activitiesIndex = 0;
-					angle -= (base_angle/constant.ringAdjustAngleFactor);
-					base_angle = PI2/activitiesCount;
-				}
-				var delta = (icon_padding*constant.ringAdjustSizeFactor)/(activitiesCount-activitiesIndex);
-				ix = (canvas_center.x+Math.cos(angle)*(radiusx+delta)-semi_size);
-				iy = (canvas_center.y+Math.sin(angle)*(radiusy+delta)-semi_size);
-			}
+		// var angle = -Math.PI/2.0-base_angle;
+		// for (var i = 0 ; i < activitiesList.length ; i++) {
+		// 	// Compute icon position
+		// 	var activity = activitiesList[i];
+		// 	var ix, iy;
+		// 	var previousAngle = angle;
+		// 	if (!spiralMode) {
+		// 		angle += base_angle;
+		// 		ix = (canvas_center.x+Math.cos(angle)*radiusx-semi_size);
+		// 		iy = (canvas_center.y+Math.sin(angle)*radiusy-semi_size);
+		// 	} else {
+		// 		angle += base_angle;
+		// 		if (activitiesIndex >= activitiesCount) {
+		// 			radiusx = radiusy = radiusx + icon_padding*constant.ringSpaceFactor;
+		// 			activitiesCount = parseInt((PI2*radiusx)/icon_padding);
+		// 			activitiesIndex = 0;
+		// 			angle -= (base_angle/constant.ringAdjustAngleFactor);
+		// 			base_angle = PI2/activitiesCount;
+		// 		}
+		// 		var delta = (icon_padding*constant.ringAdjustSizeFactor)/(activitiesCount-activitiesIndex);
+		// 		ix = (canvas_center.x+Math.cos(angle)*(radiusx+delta)-semi_size);
+		// 		iy = (canvas_center.y+Math.sin(angle)*(radiusy+delta)-semi_size);
+		// 	}
 
-			// Restricted mode for small device: integrate a way to scroll on the circle
-			if (restrictedMode) {
-				if (i < this.restrictedModeInfo.start) {
-					angle = previousAngle;
-					continue;
-				} else if (i > 0 && i == this.restrictedModeInfo.start) {
-					this.$.desktop.createComponent({
-							kind: "Sugar.Icon",
-							icon: {directory: "icons", icon: "activity-etc.svg", name: l10n.get("ListView")},
-							size: icon_size,
-							x: ix,
-							y: iy,
-							ontap: "showPreviousRestrictedList"
-						},
-						{owner: this}).render();
-					continue;
-				} else if (i >= this.restrictedModeInfo.start+activitiesCount-1 && this.restrictedModeInfo.start + activitiesCount < activitiesList.length) {
-					this.$.desktop.createComponent({
-							kind: "Sugar.Icon",
-							icon: {directory: "icons", icon: "activity-etc.svg", name: l10n.get("ListView")},
-							size: icon_size,
-							x: ix,
-							y: iy,
-							ontap: "showNextRestrictedList"
-						},
-						{owner: this}).render();
-					break;
-				}
-			}
+			//Restricted mode for small device: integrate a way to scroll on the circle
+			// if (restrictedMode) {
+			// 	if (i < this.restrictedModeInfo.start) {
+			// 		angle = previousAngle;
+			// 		continue;
+			// 	} else if (i > 0 && i == this.restrictedModeInfo.start) {
+			// 		this.$.desktop.createComponent({
+			// 				kind: "Sugar.Icon",
+			// 				icon: {directory: "icons", icon: "activity-etc.svg", name: l10n.get("ListView")},
+			// 				size: icon_size,
+			// 				x: ix,
+			// 				y: iy,
+			// 				ontap: "showPreviousRestrictedList"
+			// 			},
+			// 			{owner: this}).render();
+			// 		continue;
+			// 	} else if (i >= this.restrictedModeInfo.start+activitiesCount-1 && this.restrictedModeInfo.start + activitiesCount < activitiesList.length) {
+			// 		this.$.desktop.createComponent({
+			// 				kind: "Sugar.Icon",
+			// 				icon: {directory: "icons", icon: "activity-etc.svg", name: l10n.get("ListView")},
+			// 				size: icon_size,
+			// 				x: ix,
+			// 				y: iy,
+			// 				ontap: "showNextRestrictedList"
+			// 			},
+			// 			{owner: this}).render();
+			// 		break;
+			// 	}
+			// }
 
 			// Draw icon
-			if (activity.type != null && activity.type == "native") {
-				activity.isNative = true;
-			}
-			var newIcon = this.$.desktop.createComponent({
-					kind: "Sugar.Icon",
-					icon: activity,  // HACK: Icon characteristics are embedded in activity object
-					size: icon_size,
-					x: ix,
-					y: iy,
-					colorized: activity.instances !== undefined && activity.instances.length > 0,
-					colorizedColor: (activity.instances !== undefined && activity.instances.length > 0 && activity.instances[0].metadata.buddy_color) ? activity.instances[0].metadata.buddy_color : null,
-					ontap: "runMatchingActivity",
-					popupShow: enyo.bind(this, "showActivityPopup"),
-					popupHide: enyo.bind(this, "hideActivityPopup")
-				},
-				{owner: this}
-			);
-			newIcon.render();
-			activitiesIndex++;
+			// if (activity.type != null && activity.type == "native") {
+			// 	activity.isNative = true;
+			// }
+			// var newIcon = cells[i].createComponent({
+			// 		kind: "Sugar.Icon",
+			// 		icon: activity,  // HACK: Icon characteristics are embedded in activity object
+			// 		size: icon_size,
+			// 		// x: ix,
+			// 		// y: iy,
+			// 		colorized: activity.instances !== undefined && activity.instances.length > 0,
+			// 		colorizedColor: (activity.instances !== undefined && activity.instances.length > 0 && activity.instances[0].metadata.buddy_color) ? activity.instances[0].metadata.buddy_color : null,
+			// 		ontap: "runMatchingActivity",
+			// 		popupShow: enyo.bind(this, "showActivityPopup"),
+			// 		popupHide: enyo.bind(this, "hideActivityPopup")
+			// 	},
+			// 	{owner: this}
+			// );
+			// newIcon.render();
+			// activitiesIndex++;
 
 			// Set tutorial
-			if (!tutorialActivity) {
-				tutorial.setElement("activity", newIcon.getAttribute("id"));
-				tutorial.setElement("journal", this.$.journal.getAttribute("id"));
-				tutorialActivity = true;
-			}
-		}
+			// if (!tutorialActivity) {
+			// 	//tutorial.setElement("activity", newIcon.getAttribute("id"));
+			// 	tutorial.setElement("journal", this.$.journal.getAttribute("id"));
+			// 	tutorialActivity = true;
+			// }
+		// }
+
+		var grid = this.$.desktop.createComponent({
+			tag: "table", name: "table",
+			components: [
+    			{ tag: "tr", components: [
+      				{ tag: "td", name: "cell00" },
+      				{ tag: "td", name: "cell01" },
+      				{ tag: "td", name: "cell02" }
+  				] },
+  				{ tag: "tr", components: [
+      				{ tag: "td", name: "cell10" },
+      				{ tag: "td", name: "cell11" },
+      				{ tag: "td", name: "cell12" }
+  				] },
+  				{ tag: "tr", components: [
+      				{ tag: "td", name: "cell20" },
+      				{ tag: "td", name: "cell21" },
+      				{ tag: "td", name: "cell22" }
+  				] }
+			]
+		 },
+		 {owner: this}
+		);
+		grid.render();
+
+		this.$.table.applyStyle("width", "100%");
+		this.$.table.applyStyle("height", "100%");
+		this.$.table.applyStyle("margin", "3.472% auto");
+		this.$.cell00.applyStyle("vertical-align", "top");
+
+		this.$.cell00.applyStyle("padding-left", "6.25%");
+		this.$.cell00.applyStyle("padding-top", "0.22%");
+		this.$.cell01.applyStyle("vertical-align", "top");
+		this.$.cell01.applyStyle("padding-left", "6.25%");
+		this.$.cell01.applyStyle("padding-top", "0.22%");
+		this.$.cell02.applyStyle("vertical-align", "top");
+		this.$.cell02.applyStyle("padding-left", "6.25%");
+		this.$.cell02.applyStyle("padding-top", "0.22%");
+		this.$.cell10.applyStyle("vertical-align", "top");
+		this.$.cell10.applyStyle("padding-left", "6.25%");
+		this.$.cell10.applyStyle("padding-top", "0.22%");
+		this.$.cell11.applyStyle("vertical-align", "top");
+		this.$.cell11.applyStyle("padding-left", "6.25%");
+		this.$.cell11.applyStyle("padding-top", "0.22%");
+		this.$.cell12.applyStyle("vertical-align", "top");
+		this.$.cell12.applyStyle("padding-left", "6.25%");
+		this.$.cell12.applyStyle("padding-top", "0.22%");
+		this.$.cell20.applyStyle("vertical-align", "top");
+		this.$.cell20.applyStyle("padding-left", "6.25%");
+		this.$.cell20.applyStyle("padding-top", "0.22%");
+		this.$.cell21.applyStyle("vertical-align", "top");
+		this.$.cell21.applyStyle("padding-left", "6.25%");
+		this.$.cell21.applyStyle("padding-top", "0.22%");
+		this.$.cell22.applyStyle("vertical-align", "top");
+		this.$.cell22.applyStyle("padding-left", "6.25%");
+		this.$.cell22.applyStyle("padding-top", "0.22%");
+
+
+
+		var newIcon = this.$.cell00.createComponent({
+			kind: "Sugar.Icon",
+			icon: activitiesList[0],  // HACK: Icon characteristics are embedded in activity object
+			size: icon_size,
+			ontap: "runMatchingActivity",
+			popupShow: enyo.bind(this, "showActivityPopup"),
+			popupHide: enyo.bind(this, "hideActivityPopup")
+		  },
+		  {owner: this}
+	    );
+	    newIcon.render();
+
+	    var newIcon = this.$.cell01.createComponent({
+			kind: "Sugar.Icon",
+			icon: activitiesList[1],  // HACK: Icon characteristics are embedded in activity object
+			size: icon_size,
+			ontap: "runMatchingActivity",
+			popupShow: enyo.bind(this, "showActivityPopup"),
+			popupHide: enyo.bind(this, "hideActivityPopup")
+		  },
+		  {owner: this}
+	    );
+	    newIcon.render();
+
+	    var newIcon = this.$.cell02.createComponent({
+			kind: "Sugar.Icon",
+			icon: activitiesList[2],  // HACK: Icon characteristics are embedded in activity object
+			size: icon_size,
+			ontap: "runMatchingActivity",
+			popupShow: enyo.bind(this, "showActivityPopup"),
+			popupHide: enyo.bind(this, "hideActivityPopup")
+		  },
+		  {owner: this}
+	    );
+	    newIcon.render();
+
+
+	    var newIcon = this.$.cell11.createComponent({
+			kind: "Sugar.Icon",
+			icon: activitiesList[4],  // HACK: Icon characteristics are embedded in activity object
+			size: icon_size,
+			ontap: "runMatchingActivity",
+			popupShow: enyo.bind(this, "showActivityPopup"),
+			popupHide: enyo.bind(this, "hideActivityPopup")
+		  },
+		  {owner: this}
+	    );
+	    newIcon.render();
+
+			var newIcon = this.$.cell10.createComponent({
+			kind: "Sugar.Icon",
+			icon: activitiesList[3],  // HACK: Icon characteristics are embedded in activity object
+			size: icon_size,
+			ontap: "runMatchingActivity",
+			popupShow: enyo.bind(this, "showActivityPopup"),
+			popupHide: enyo.bind(this, "hideActivityPopup")
+			},
+			{owner: this}
+			);
+			newIcon.render();
+
+
+
+	    var newIcon = this.$.cell12.createComponent({
+			kind: "Sugar.Icon",
+			icon: activitiesList[5],  // HACK: Icon characteristics are embedded in activity object
+			size: icon_size,
+			ontap: "runMatchingActivity",
+			popupShow: enyo.bind(this, "showActivityPopup"),
+			popupHide: enyo.bind(this, "hideActivityPopup")
+		  },
+		  {owner: this}
+	    );
+	    newIcon.render();
+
+	    var newIcon = this.$.cell20.createComponent({
+			kind: "Sugar.Icon",
+			icon: activitiesList[6],  // HACK: Icon characteristics are embedded in activity object
+			size: icon_size,
+			ontap: "runMatchingActivity",
+			popupShow: enyo.bind(this, "showActivityPopup"),
+			popupHide: enyo.bind(this, "hideActivityPopup")
+		  },
+		  {owner: this}
+	    );
+	    newIcon.render();
+
+	    //var newIcon = this.$.cell21.createComponent({
+			//kind: "Sugar.Icon",
+			//icon: activitiesList[7],  // HACK: Icon characteristics are embedded in activity object
+			//size: icon_size,
+			//ontap: "runMatchingActivity",
+			//popupShow: enyo.bind(this, "showActivityPopup"),
+			//popupHide: enyo.bind(this, "hideActivityPopup")
+		  //},
+		  //{owner: this}
+	    //);
+	    //newIcon.render();
+
+			//var newIcon = this.$.cell22.createComponent({
+			//kind: "Sugar.Icon",
+			//icon: activitiesList[8],  // HACK: Icon characteristics are embedded in activity object
+			//size: icon_size,
+			//ontap: "runMatchingActivity",
+			//popupShow: enyo.bind(this, "showActivityPopup"),
+			//popupHide: enyo.bind(this, "hideActivityPopup")
+		  //},
+		  //{owner: this}
+	    //);
+	    //newIcon.render();
 	},
+
+	//play Sounds
+	PlaySound1:function(melody) {
+			alert("On Press of "+melody);
+			var path = "C:/Users/Iqra Muhammad/Documents/Sugarizer/sugarizer-0.9/activities/TamTamMicro.activity/audio/"
+			var snd = new Audio(path + melody + ".mp3");
+			snd.play();
+	},
+//databasealarm.mp3
 
 	// Redraw, for example after a resized event
 	redraw: function() {
@@ -414,18 +572,16 @@ enyo.kind({
 		}
 		var oldView = this.currentView;
 		this.currentView = newView;
-		stats.trace(constant.viewNames[oldView], 'change_view', constant.viewNames[newView]);
 
 		// Show desktop
 		if (newView == constant.radialView) {
-			this.otherview = null;
-			util.setToolbar(this.getToolbar());
-			toolbar.setActiveView(constant.radialView);
+		//	util.setToolbar(this.getToolbar());
+		//	toolbar.setActiveView(constant.radialView);
 			this.$.otherview.hide();
 			this.$.desktop.show();
 			this.$.owner.show();
 			this.$.journal.show();
-			this.clearView();
+			this.otherview = null;
 			return;
 		}
 
@@ -437,9 +593,9 @@ enyo.kind({
 
 		// Show list
 		if (newView == constant.listView) {
-			util.setToolbar(this.getToolbar());
-			var filter = toolbar.getSearchText().toLowerCase();
-			toolbar.setActiveView(constant.listView);
+	//	util.setToolbar(this.getToolbar());
+		//	var filter = toolbar.getSearchText().toLowerCase();
+		//	toolbar.setActiveView(constant.listView);
 			this.otherview = this.$.otherview.createComponent({kind: "Sugar.DesktopListView", activities: preferences.getActivitiesByName(filter)});
 		}
 
@@ -450,14 +606,14 @@ enyo.kind({
 				window.clearInterval(this.timer);
 			}
 			this.otherview = this.$.otherview.createComponent({kind: "Sugar.Journal", journal: this.journal});
-			util.setToolbar(this.otherview.getToolbar());
+		//	util.setToolbar(this.otherview.getToolbar());
 		}
 
 		// Show neighborhood
 		else if (newView == constant.neighborhoodView) {
 			this.otherview = this.$.otherview.createComponent({kind: "Sugar.NeighborhoodView"});
-			toolbar.setActiveView(constant.neighborhoodView);
-			util.setToolbar(this.otherview.getToolbar());
+		//	toolbar.setActiveView(constant.neighborhoodView);
+		//	util.setToolbar(this.otherview.getToolbar());
 		}
 
 		this.$.otherview.show();
@@ -480,13 +636,9 @@ enyo.kind({
 	// Render
 	rendered: function() {
 		this.inherited(arguments);
-		this.$.owner.colorize(preferences.getColor());
+		//this.$.owner.colorize(preferences.getColor());
 		if (this.journal.length > 0) {
 			this.$.journal.colorize(preferences.getColor());
-		}
-		if (this.isJournalFull && l10n.get("JournalAlmostFull")) {
-			humane.log(l10n.get("JournalAlmostFull"));
-			this.isJournalFull = false;
 		}
 	},
 
@@ -551,38 +703,43 @@ enyo.kind({
 		if (activity.instances !== undefined && activity.instances.length > 0 && activity.instances[0].metadata.title !== undefined) {
 			title = activity.instances[0].metadata.title;
 		} else {
-			title = l10n.get('NameActivity', {name: activity.name});
+		//	title = l10n.get('NameActivity', {name: activity.name});
 		}
 		this.getPopup().setHeader({
-			icon: activity,
+		//	icon: activity,
 			colorized: activity.instances !== undefined && activity.instances.length > 0,
 			colorizedColor: (activity.instances !== undefined && activity.instances.length > 0 && activity.instances[0].metadata.buddy_color) ? activity.instances[0].metadata.buddy_color : null,
-			name: activity.name,
-			title: title,
-			action: enyo.bind(this, "runActivity"),
+		//	name: activity.name,
+		//	title: title,
+			action: enyo.bind(this, "runNewActivity"),
 			data: [activity, null]
-		});
+		})
+
+
+		;
 		var items = [];
 		if (activity.instances) {
 			for(var i = 0 ; i < activity.instances.length && i < constant.maxPopupHistory; i++) {
 				items.push({
-					icon: activity,
-					colorized: true,
+				//	icon: activity,
+					colorized: false,
 					colorizedColor: (activity.instances[i].metadata.buddy_color ? activity.instances[i].metadata.buddy_color : null),
-					name: activity.instances[i].metadata.title,
+				//	name: activity.instances[i].metadata.title,
 					action: enyo.bind(this, "runOldActivity"),
 					data: [activity, activity.instances[i]]
 				});
 			}
 		}
 		this.getPopup().setItems(items);
-		this.getPopup().setFooter([{
-			icon: activity,
-			colorized: false,
-			name: l10n.get("StartNew"),
-			action: enyo.bind(this, "runNewActivity"),
-			data: [activity, null]
-		}]);
+	//	this.getPopup().setFooter([{
+		//	icon: activity,
+		//	colorized: false,
+			//name: l10n.get("StartNew"),
+		//	action: enyo.bind(this, "runNewActivity"),
+		//	data: [activity, null]
+	//	}])
+
+		;
 
 		// Show popup
 		this.getPopup().showPopup();
@@ -611,8 +768,8 @@ enyo.kind({
 		items.push({
 			icon: {directory: "icons", icon: "system-shutdown.svg"},
 			colorized: false,
-			name: l10n.get("Logoff"),
-			action: enyo.bind(this, "doLogoff"),
+			name: l10n.get("Shutdown"),
+			action: enyo.bind(this, "doShutdown"),
 			data: null
 		});
 		items.push({
@@ -641,24 +798,14 @@ enyo.kind({
 		this.getPopup().hidePopup();
 		return true;
 	},
-	doLogoff: function() {
-		stats.trace(constant.viewNames[this.getView()], 'click', 'logoff');
+	doShutdown: function() {
 		this.getPopup().hidePopup();
-		if (!preferences.isConnected() || (preferences.isConnected() && !preferences.getOptions("sync"))) {
-			this.otherview = this.$.otherview.createComponent({kind: "Sugar.DialogWarningMessage"}, {owner:this});
-			this.otherview.show();
-		} else {
-			preferences.addUserInHistory();
-			util.cleanDatastore();
-			util.restartApp();
-		}
+		util.quitApp();
 	},
 	doRestart: function() {
-		stats.trace(constant.viewNames[this.getView()], 'click', 'restart');
 		util.restartApp();
 	},
 	doSettings: function() {
-		stats.trace(constant.viewNames[this.getView()], 'click', 'my_settings');
 		this.getPopup().hidePopup();
 		this.otherview = this.$.otherview.createComponent({kind: "Sugar.DialogSettings"}, {owner:this});
 		this.otherview.show();
@@ -670,7 +817,7 @@ enyo.kind({
 
 	// Filter activities handling
 	filterActivities: function() {
-		var filter = toolbar.getSearchText().toLowerCase();
+	//	var filter = toolbar.getSearchText().toLowerCase();
 
 		// In radial view, just disable activities
 		enyo.forEach(this.$.desktop.getControls(), function(item) {
@@ -693,9 +840,7 @@ enyo.kind({
 	name: "Sugar.DesktopToolbar",
 	kind: enyo.Control,
 	components: [
-		{name: "searchtext", kind: "Sugar.SearchField", classes: "homeview-filter-text", onTextChanged: "filterActivities"},
-		{name: "helpbutton", kind: "Button", classes: "toolbutton help-button", title:"Help", ontap: "startTutorial"},
-		{name: "syncbutton", classes: "sync-button sync-home sync-gear sync-gear-home", showing: false},
+	{name: "helpbutton", kind: "Button", classes: "toolbutton help-button", title:"Help", ontap: "startTutorial"},
 		{name: "radialbutton", kind: "Button", classes: "toolbutton view-radial-button active", title:"Home", ontap: "showRadialView"},
 		{name: "neighborbutton", kind: "Button", classes: "toolbutton view-neighbor-button", title:"Home", ontap: "showNeighborView"},
 		{name: "listbutton", kind: "Button", classes: "toolbutton view-list-button", title:"List", ontap: "showListView"}
@@ -703,18 +848,13 @@ enyo.kind({
 
 	// Constructor
 	create: function() {
+		// Localize items
 		this.inherited(arguments);
 		this.needRedraw = false;
 	},
 
 	rendered: function() {
-		this.inherited(arguments);
-		this.localize();
-	},
-
-	localize: function() {
-		// Localize items
-		this.$.searchtext.setPlaceholder(l10n.get("SearchHome"));
+	//	this.$.searchtext.setPlaceholder(l10n.get("SearchHome"));
 		this.$.radialbutton.setNodeProperty("title", l10n.get("FavoritesView"));
 		this.$.listbutton.setNodeProperty("title", l10n.get("ListView"));
 		this.$.neighborbutton.setNodeProperty("title", l10n.get("NeighborhoodView"));
@@ -753,7 +893,6 @@ enyo.kind({
 
 	// Handle events
 	filterActivities: function() {
-		stats.trace(constant.viewNames[app.getView()], 'search', 'q='+this.getSearchText(), null);
 		app.filterActivities();
 	},
 
@@ -784,16 +923,11 @@ enyo.kind({
 		}
 	},
 
-	showSync: function(showing) {
-		this.$.syncbutton.setShowing(showing);
-	},
-
 	startTutorial: function() {
 		tutorial.setElement("radialbutton", this.$.radialbutton.getAttribute("id"));
 		tutorial.setElement("listbutton", this.$.listbutton.getAttribute("id"));
 		tutorial.setElement("neighborbutton", this.$.neighborbutton.getAttribute("id"));
-		tutorial.setElement("searchtext", this.$.searchtext.getAttribute("id"));
-		stats.trace(constant.viewNames[app.getView()], 'tutorial', 'start', null);
+	//	tutorial.setElement("searchtext", this.$.searchtext.getAttribute("id"));
 		tutorial.start();
 	}
 });

@@ -26,7 +26,11 @@
   background-image: url(../icons/robot-off.svg);
 }
 
+
+
+
 #canvas {
   overflow-x: hidden;
   overflow-y: hidden;
+  background-image: url(../icons/background.svg);
 }

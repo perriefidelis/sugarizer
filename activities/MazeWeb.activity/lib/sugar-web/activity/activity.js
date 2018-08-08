@@ -21,7 +21,7 @@ define(["webL10n",
         function sendPauseEvent() {
 			var pauseEvent = document.createEvent("CustomEvent");
 			pauseEvent.initCustomEvent('activityPause', false, false, {
-				'cancelable': true
+				'cancelable': true	
 			});
             window.dispatchEvent(pauseEvent);
         }
@@ -34,11 +34,13 @@ define(["webL10n",
         function sendStopEvent() {
 			var stopEvent = document.createEvent("CustomEvent");
 			stopEvent.initCustomEvent('activityStop', false, false, {
-				'cancelable': true
-			});
+				'cancelable': true	
+			});				
             var result = window.dispatchEvent(stopEvent);
             if (result) {
-                activity.close();
+				datastoreObject.save(function() {
+					activity.close();
+				});
             }
         }
         bus.onNotification("activity.stop", sendStopEvent);
@@ -79,10 +81,7 @@ define(["webL10n",
                 datastoreObject.getMetadata(function (error, metadata) {
                     activityPalette.setTitleDescription(metadata);
                 });
-            })
-			if (environment.standAlone) {
-				document.getElementById("stop-button").style.visibility = "hidden";
-			};
+            });
         });
     };
 
