@@ -239,8 +239,6 @@ Please follow the following steps for the development of an ios app.
 
 Cordova command-line runs on [Node.js](http://nodejs.org/) and is available on [NPM](https://npmjs.org/package/cordova). Follow [platform specific guides](https://cordova.apache.org/docs/en/latest/index.html#develop-for-platforms) to install additional platform dependencies. Open a command prompt or Terminal, and type npm install -g cordova.
 
-Copy
-
 $ npm install -g cordova
 
 npm install -g cordova
@@ -253,7 +251,6 @@ Create a blank Cordova project using the command-line tool. Navigate to the dire
 
 For a complete set of options, type cordova help create.
 
-Copy
 
 $ cordova create MyApp
 
