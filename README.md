@@ -24,7 +24,7 @@
 
 * Developer - **Iqra Muhammad**.
 
-* Project Mentors - **Samson Goddy, Caryl Begenho, Perrie Fidelis**.
+* Project Mentors - **Samson Goddy, Caryl Begenho, Peace Ojemeh**.
 
 * As part of - **Google Summer Of Code(GSOC) 2018**
 
